@@ -14,20 +14,21 @@ public class UIManager : MonoBehaviour
     public Image healthFill;
     public TextMeshProUGUI zombiesText;
     public TextMeshProUGUI pointsText;
+    public TextMeshProUGUI waveCounter;
 
     [Header("Pause")]
     public GameObject pausePanel;
 
     [Header("Game Over")]
     public GameObject gameOverPanel;
+    public GameObject BloodCanvas;
+    public GameObject FPSCanvas;
     public TextMeshProUGUI goZombiesText;
     public TextMeshProUGUI goPointsText;
 
-    [Header("Config")]
-    public int maxZombies = 10;
-
-    int zombiesKilled = 0;
+    int totalZombiesKilled = 0;
     int points = 0;
+    public int zombiesKilledThisWave = 0;
     bool isPaused = false;
 
     void Awake()
@@ -47,8 +48,8 @@ public class UIManager : MonoBehaviour
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
-        UpdateZombiesText();
-        UpdatePointsText();
+        SetZombieProgress(0);
+        UpdatePointsText(0);
         SetHealth(100, 100);
 
         Cursor.lockState = CursorLockMode.Locked;
@@ -57,15 +58,21 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        // No permitir pausar si ya está en Game Over
         if (Input.GetKeyDown(KeyCode.Escape) && (gameOverPanel == null || !gameOverPanel.activeSelf))
         {
             if (isPaused) ResumeGame();
             else PauseGame();
         }
+
+        UpdatePointsText(points);
     }
 
-    // ---------- VIDA ----------
+    void UpdatePointsText(int points)
+    {
+        if (pointsText != null)
+            pointsText.text = "Points: " + points;
+    }
+
     public void SetHealth(float current, float max)
     {
         if (healthFill == null) return;
@@ -74,47 +81,48 @@ public class UIManager : MonoBehaviour
         healthFill.fillAmount = t;
     }
 
-    // ---------- ZOMBIS / PUNTOS ----------
     public void AddZombieKill(int addPoints = 1)
     {
-        zombiesKilled++;
         points += addPoints;
-        UpdateZombiesText();
-        UpdatePointsText();
+        zombiesKilledThisWave++;
+        totalZombiesKilled++;
     }
 
-    public void SetZombieProgress(int killed, int max)
-    {
-        zombiesKilled = killed;
-        maxZombies = max;
-        UpdateZombiesText();
-    }
-
-    void UpdateZombiesText()
+    public void SetZombieProgress(int max)
     {
         if (zombiesText != null)
-            zombiesText.text = zombiesKilled + "/" + maxZombies;
+            zombiesText.text = $"{max - zombiesKilledThisWave}/{max}";
     }
 
-    public void AddPoints(int extra)
+    public void SetWaveCounter(int wave)
     {
-        points += extra;
-        UpdatePointsText();
+        if (waveCounter != null)
+            waveCounter.text = $"{WaveToTallyMarks(wave)}";
     }
 
-    public void SetPoints(int value)
+    string WaveToTallyMarks(int wave)
     {
-        points = value;
-        UpdatePointsText();
+        if (wave <= 0) return "";
+
+        // Each group of 5 = "e", remainder uses a-e
+        int fullGroups = (wave - 1) / 5;
+        int remainder = ((wave - 1) % 5) + 1;
+
+        string result = "";
+
+        // Add full groups (each group = "e")
+        for (int i = 0; i < fullGroups; i++)
+        {
+            result += "e";
+        }
+
+        // Add remainder as a-e
+        char[] tallyChars = { 'a', 'b', 'c', 'd', 'e' };
+        result += tallyChars[remainder - 1];
+
+        return result;
     }
 
-    void UpdatePointsText()
-    {
-        if (pointsText != null)
-            pointsText.text = "Puntos: " + points;
-    }
-
-    // ---------- PAUSA ----------
     void PauseGame()
     {
         isPaused = true;
@@ -168,8 +176,11 @@ public class UIManager : MonoBehaviour
     public void ShowGameOver()
     {
         // Desactivar HUD y pausa
-        if (hudPanel != null)
-            hudPanel.SetActive(false);
+        if (BloodCanvas != null)
+            BloodCanvas.SetActive(false);
+
+        if (FPSCanvas != null)
+            FPSCanvas.SetActive(false);
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
@@ -183,10 +194,10 @@ public class UIManager : MonoBehaviour
 
         // Mostrar stats
         if (goZombiesText != null)
-            goZombiesText.text = zombiesKilled + "/" + maxZombies;
+            goZombiesText.text = $"Zombies killed: {totalZombiesKilled}";
 
         if (goPointsText != null)
-            goPointsText.text = points.ToString();
+            goPointsText.text = $"Score: {points}";
 
         // Mostrar cursor
         Cursor.lockState = CursorLockMode.None;

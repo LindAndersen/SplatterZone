@@ -1,14 +1,13 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 [System.Serializable]
 public class ZombiePrefabConfig
 {
     public GameObject prefab;
-    public int minCountWave1 = 2;
-    public int maxCountWave1 = 5;
-    public int minCountIncreasePerWave = 1;
-    public int maxCountIncreasePerWave = 2;
+    public int countWave1 = 2;
 }
 
 public class ZombieSpawner : MonoBehaviour
@@ -21,13 +20,11 @@ public class ZombieSpawner : MonoBehaviour
     public List<ZombiePrefabConfig> zombiePrefabs = new List<ZombiePrefabConfig>();
 
     [Header("Wave Settings")]
-    public int initialZombieCount = 10;
-    public float spawnRate = 1f;
+    public float timeBetweenWaves = 20f;
 
-    private float lastSpawnTime = 0f;
     private int currentWave = 0;
+    private bool waveInProgress = false;
     private int zombiesSpawnedThisWave = 0;
-    private int targetZombiesThisWave = 0;
 
     void Start()
     {
@@ -36,87 +33,91 @@ public class ZombieSpawner : MonoBehaviour
             spawnpoints = GetComponentsInChildren<Transform>();
         }
 
-        // Initialize first wave
-        currentWave = 0;
-        targetZombiesThisWave = initialZombieCount;
-        zombiesSpawnedThisWave = 0;
+        // Start first wave
+        StartCoroutine(WaveLoop());
     }
 
     void Update()
     {
-        if (zombiePrefabs.Count == 0)
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.SetZombieProgress(zombiesSpawnedThisWave);
+            if (!waveInProgress)
+            {
+                UIManager.Instance.zombiesKilledThisWave = 0;
+            }
+        }
+    }
+
+    IEnumerator WaveLoop()
+    {
+        while (true)
+        {
+            currentWave++;
+            Debug.Log($"[ZombieSpawner] Starting Wave {currentWave}");
+            
+            if (UIManager.Instance != null)
+                UIManager.Instance.SetWaveCounter(currentWave);
+
+            SpawnWave();
+            waveInProgress = true;
+
+            // Wait for all zombies to be killed
+            yield return new WaitUntil(() => AllZombiesDead());
+
+            waveInProgress = false;
+            Debug.Log($"[ZombieSpawner] Wave {currentWave} complete! Next wave in {timeBetweenWaves} seconds...");
+
+            // Wait before starting next wave
+            yield return new WaitForSeconds(timeBetweenWaves);
+        }
+    }
+
+    void SpawnWave()
+    {
+        if (zombiePrefabs.Count == 0 || spawnpoints.Length == 0)
             return;
 
-        lastSpawnTime += Time.deltaTime;
-        if (lastSpawnTime >= spawnRate)
-        {
-            lastSpawnTime = 0f;
+        zombiesSpawnedThisWave = 0;
 
-            int currentZombies = GameObject.FindGameObjectsWithTag(zombieTag).Length;
-
-            // Check if wave is complete
-            if (zombiesSpawnedThisWave >= targetZombiesThisWave && currentZombies == 0)
-            {
-                // Move to next wave (add 20% to zombie count)
-                currentWave++;
-                targetZombiesThisWave = Mathf.RoundToInt(initialZombieCount * (1f + (currentWave * 0.2f)));
-                zombiesSpawnedThisWave = 0;
-                Debug.Log($"[ZombieSpawner] Wave {currentWave + 1} started! Target zombies: {targetZombiesThisWave}");
-            }
-
-            // Spawn if we haven't reached target yet
-            if (zombiesSpawnedThisWave < targetZombiesThisWave)
-            {
-                SpawnZombie();
-                zombiesSpawnedThisWave++;
-            }
-        }
-    }
-
-    void SpawnZombie()
-    {
-        if (spawnpoints.Length == 0) return;
-
-        // Get a random prefab based on wave difficulty
-        GameObject prefabToSpawn = GetRandomZombiePrefab();
-        if (prefabToSpawn == null) return;
-
-        int spawnIndex = Random.Range(0, spawnpoints.Length);
-        Transform spawnpoint = spawnpoints[spawnIndex];
-        Instantiate(prefabToSpawn, spawnpoint.position, Quaternion.identity);
-    }
-
-    GameObject GetRandomZombiePrefab()
-    {
-        List<GameObject> validPrefabs = new List<GameObject>();
-
-        // Determine min/max counts for this wave and collect eligible prefabs
         foreach (ZombiePrefabConfig config in zombiePrefabs)
         {
-            int minCount = config.minCountWave1 + (currentWave * config.minCountIncreasePerWave);
-            int maxCount = config.maxCountWave1 + (currentWave * config.maxCountIncreasePerWave);
+            if (config.prefab == null)
+                continue;
 
-            // Add prefab multiple times based on its range to create weighted selection
-            for (int i = 0; i < Random.Range(minCount, maxCount + 1); i++)
+            // Calculate count for this wave (20% increase per wave)
+            int count = Mathf.RoundToInt(config.countWave1 * Mathf.Pow(1.2f, currentWave - 1));
+
+            // Spawn all zombies of this type
+            for (int i = 0; i < count; i++)
             {
-                if (config.prefab != null)
-                    validPrefabs.Add(config.prefab);
+                int spawnIndex = Random.Range(0, spawnpoints.Length);
+                Transform spawnpoint = spawnpoints[spawnIndex];
+                Instantiate(config.prefab, spawnpoint.position, Quaternion.identity);
+                zombiesSpawnedThisWave++;
             }
+
+            Debug.Log($"[ZombieSpawner] Spawned {count} of {config.prefab.name} for wave {currentWave}");
         }
+    }
 
-        if (validPrefabs.Count == 0)
-            return null;
-
-        return validPrefabs[Random.Range(0, validPrefabs.Count)];
+    bool AllZombiesDead()
+    {
+        return GameObject.FindGameObjectsWithTag(zombieTag).Length == 0;
     }
 
     public int GetCurrentWave()
     {
-        return currentWave + 1; // 1-indexed for UI display
+        return currentWave;
     }
 
-    public int GetZombiesRemainingThisWave()
+    public bool IsWaveInProgress()
     {
-        return targetZombiesThisWave - zombiesSpawnedThisWave;
+        return waveInProgress;
+    }
+
+    public int GetZombiesSpawnedThisWave()
+    {
+        return zombiesSpawnedThisWave;
     }
 }
