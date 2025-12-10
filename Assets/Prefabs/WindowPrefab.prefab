@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 543006986919043729}
   - component: {fileID: 4399907786517273815}
   - component: {fileID: 4412984072676648318}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Cube.091
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98,7 +98,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8836096201552794807}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: planks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,9 +133,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8290646481186945304}
   - component: {fileID: 2380565615465728459}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Rotten and broken wood_13
-  m_TagString: Untagged
+  m_TagString: Concrete
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -188,7 +188,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7433500114541684358}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: plank_top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 5609188279522447081}
   - component: {fileID: 2873599848027842707}
   - component: {fileID: 5425851718392758245}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Cube.095
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -332,8 +332,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8857215294424576254}
-  - {fileID: 8976348853953150662}
-  - {fileID: 3049594549110713280}
+  - {fileID: 3581304620858456720}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8881077327761221954
@@ -354,6 +353,9 @@ MonoBehaviour:
   maxHealth: 3
   playerAttackSpeed: 2
   zombieAttackSpeed: 2
+  zombieDetectionLayers:
+    serializedVersion: 2
+    m_Bits: 65536
   repairSound: {fileID: 8300000, guid: 3ba5e26ab3bf72d4697e4b3b1e340933, type: 3}
   hitSound: {fileID: 8300000, guid: e5da44d92b9905247b58f250fefe2b1a, type: 3}
   breakSound: {fileID: 8300000, guid: 5b344a7f447d0774d8b51593b66c7be9, type: 3}
@@ -361,10 +363,8 @@ MonoBehaviour:
   - {fileID: 1378720077717059715}
   - {fileID: 6480395396933059225}
   - {fileID: 8434860125649864393}
-  repairEffectPrefab: {fileID: 6441873369525384307, guid: 0f3d407feb92ebb49b98d0157de5008a,
-    type: 3}
-  breakEffectPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a,
-    type: 3}
+  repairEffectPool: {fileID: 6807550533414358083}
+  breakEffectPool: {fileID: 1460752279503466939}
 --- !u!114 &102419458518046260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,8 +379,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshLink
   m_SerializedVersion: 1
   m_AgentTypeID: 0
-  m_StartPoint: {x: 0.8125, y: -1.6196501, z: 0.22156811}
-  m_EndPoint: {x: -1.3396959, y: -3.4849257, z: -0.020321608}
+  m_StartPoint: {x: 0.9923085, y: -2.4303749, z: 0.22154653}
+  m_EndPoint: {x: -1.7942517, y: -3.9841163, z: -0.020334398}
   m_StartTransform: {fileID: 0}
   m_EndTransform: {fileID: 0}
   m_Activated: 1
@@ -390,6 +390,53 @@ MonoBehaviour:
   m_Bidirectional: 1
   m_AutoUpdatePosition: 0
   m_Area: 0
+--- !u!1 &2815799020840717974
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5174140400881004564}
+  - component: {fileID: 6807550533414358083}
+  m_Layer: 0
+  m_Name: RepairEffectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5174140400881004564
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2815799020840717974}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3581304620858456720}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6807550533414358083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2815799020840717974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eab04f6e6ab98f74d9d13871aa3a2952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ParticleEffectPool
+  effectPrefab: {fileID: 6441873369525384307, guid: 0f3d407feb92ebb49b98d0157de5008a,
+    type: 3}
+  poolSize: 2
 --- !u!1 &4756093695757156290
 GameObject:
   m_ObjectHideFlags: 0
@@ -401,7 +448,7 @@ GameObject:
   - component: {fileID: 8154123116428348507}
   - component: {fileID: 7716956743949331339}
   - component: {fileID: 372638652208088459}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Cube.091
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -489,7 +536,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3049594549110713280}
   - component: {fileID: 4580740497155454824}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: BreakZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -505,11 +552,11 @@ Transform:
   m_GameObject: {fileID: 5019085345626400129}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.2880001, y: -2.4508293, z: 0}
-  m_LocalScale: {x: 0.2576, y: 2.4508293, z: 1.6566678}
+  m_LocalPosition: {x: -5, y: -1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1568215509427553505}
+  m_Father: {fileID: 8857215294424576254}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!208 &4580740497155454824
 NavMeshObstacle:
@@ -537,9 +584,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4940065386612890698}
   - component: {fileID: 7222754340067638208}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Rotten and broken wood_13
-  m_TagString: Untagged
+  m_TagString: Concrete
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -583,6 +630,125 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &5781814691697846551
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3719070237439497609}
+  - component: {fileID: 1460752279503466939}
+  m_Layer: 0
+  m_Name: BreakEffectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3719070237439497609
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5781814691697846551}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3581304620858456720}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1460752279503466939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5781814691697846551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eab04f6e6ab98f74d9d13871aa3a2952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ParticleEffectPool
+  effectPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a,
+    type: 3}
+  poolSize: 2
+--- !u!1 &5915228515807558152
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 704467257636866846}
+  - component: {fileID: 7875907233875679357}
+  - component: {fileID: 2325556769817442466}
+  m_Layer: 15
+  m_Name: WindowHighlight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &704467257636866846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5915228515807558152}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.14, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8857215294424576254}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &7875907233875679357
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5915228515807558152}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 14.19972, y: 0.9999999, z: 3.0808716}
+  m_Center: {x: 1.4328673, y: 0, z: -0.15469632}
+--- !u!114 &2325556769817442466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5915228515807558152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4aead2a72ca1874188f012691d96d04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WindowHighlight
+  glowColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 1}
+  glowIntensity: 0.4
+  pulseSpeed: 3.5
+  keyPromptSprite: {fileID: 0}
+  keyPromptIcon: {fileID: 21300000, guid: 9b65749096209014cb2f9d2189bd0729, type: 3}
+  promptOffset: {x: -1.3, y: -1, z: -0.1}
 --- !u!1 &5976798767712568509
 GameObject:
   m_ObjectHideFlags: 0
@@ -594,7 +760,7 @@ GameObject:
   - component: {fileID: 6809078073398794250}
   - component: {fileID: 6353863405087700814}
   - component: {fileID: 6984282130185414088}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Cube.095
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -681,7 +847,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5681957600281493884}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: plank_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -715,7 +881,7 @@ GameObject:
   - component: {fileID: 3678724861060404242}
   - component: {fileID: 1721657934818633583}
   - component: {fileID: 5002112999376263230}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Cube.095
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -803,9 +969,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3573894370336142672}
   - component: {fileID: 5300383990150591215}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Rotten and broken wood_13
-  m_TagString: Untagged
+  m_TagString: Concrete
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -860,7 +1026,7 @@ GameObject:
   - component: {fileID: 8976348853953150662}
   - component: {fileID: 9112784790942225887}
   - component: {fileID: 3846510164903276153}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: RepairZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -877,10 +1043,10 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.2576, y: 2.4508293, z: 1.6566678}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 1568215509427553505}
+  m_Father: {fileID: 8857215294424576254}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &9112784790942225887
 BoxCollider:
@@ -916,6 +1082,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RepairZoneTrigger
   breakable: {fileID: 8881077327761221954}
+--- !u!1 &7946310049168884444
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3581304620858456720}
+  m_Layer: 0
+  m_Name: Effects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3581304620858456720
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7946310049168884444}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5174140400881004564}
+  - {fileID: 3719070237439497609}
+  m_Father: {fileID: 1568215509427553505}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8311587340681631336
 GameObject:
   m_ObjectHideFlags: 0
@@ -927,7 +1126,7 @@ GameObject:
   - component: {fileID: 7799623919124136771}
   - component: {fileID: 8062451879583730630}
   - component: {fileID: 1143525162270017136}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Cube.091
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1014,7 +1213,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3646588970026912092}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: plank_bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1050,12 +1249,12 @@ GameObject:
   - component: {fileID: 1348775574943137813}
   - component: {fileID: 8904343990691478783}
   - component: {fileID: 546808692848048724}
-  m_Layer: 14
+  m_Layer: 15
   m_Name: Window
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 1
   m_IsActive: 1
 --- !u!4 &8857215294424576254
 Transform:
@@ -1071,6 +1270,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8836096201552794807}
+  - {fileID: 8976348853953150662}
+  - {fileID: 3049594549110713280}
+  - {fileID: 704467257636866846}
   m_Father: {fileID: 1568215509427553505}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1298571055552278603
@@ -1163,5 +1365,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::IgnoreLayerCollisions
   layersToIgnore:
-  - Character
   - Projectile
