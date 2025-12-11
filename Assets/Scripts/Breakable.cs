@@ -67,7 +67,7 @@ public class Breakable : MonoBehaviour
     {
         if (obstacle == null || !obstacle.enabled)
         {
-            Debug.Log("[Breakable] Obstacle is null or not enabled, skipping zombie damage.");
+            //Debug.Log("[Breakable] Obstacle is null or not enabled, skipping zombie damage.");
             return;
         }
 
@@ -75,33 +75,33 @@ public class Breakable : MonoBehaviour
         Vector3 boxCenter = obstacle.transform.position + obstacle.center;
         float detectionRadius = obstacle.size.y + 1f;
         int count = Physics.OverlapSphereNonAlloc(boxCenter, detectionRadius, zombiesOnObstacle, zombieDetectionLayers, QueryTriggerInteraction.UseGlobal);
-        Debug.Log($"[Breakable] Zombie detection sphere at {boxCenter}, radius {detectionRadius}, found {count} colliders.");
+        //Debug.Log($"[Breakable] Zombie detection sphere at {boxCenter}, radius {detectionRadius}, found {count} colliders.");
 
         for (int i = 0; i < count; i++)
         {
             var col = zombiesOnObstacle[i];
-            Debug.Log($"[Breakable] Collider {i}: {col.name}, tag: {col.tag}");
+            //Debug.Log($"[Breakable] Collider {i}: {col.name}, tag: {col.tag}");
             if (col.CompareTag("Zombie"))
             {
                 NavMeshAgent agent = col.GetComponent<NavMeshAgent>();
                 if (agent == null)
                 {
-                    Debug.Log($"[Breakable] Collider {i} has no NavMeshAgent, skipping.");
+                    //Debug.Log($"[Breakable] Collider {i} has no NavMeshAgent, skipping.");
                     continue;
                 }
 
                 ZombieStatsBase stats = col.GetComponent<ZombieStatsBase>();
                 if (stats != null && stats.IsDead())
                 {
-                    Debug.Log($"[Breakable] Collider {i} is dead, skipping.");
+                    //Debug.Log($"[Breakable] Collider {i} is dead, skipping.");
                     continue;
                 }
 
                 damageCooldown -= Time.deltaTime;
-                Debug.Log($"[Breakable] damageCooldown: {damageCooldown}");
+                //Debug.Log($"[Breakable] damageCooldown: {damageCooldown}");
                 if (damageCooldown <= 0f)
                 {
-                    Debug.Log($"[Breakable] Zombie {col.name} is damaging breakable!");
+                    //Debug.Log($"[Breakable] Zombie {col.name} is damaging breakable!");
                     Hit();
                     damageCooldown = zombieAttackSpeed;
                 }
@@ -117,7 +117,7 @@ public class Breakable : MonoBehaviour
 
     public void Hit()
     {
-        Debug.Log("Breakable hit by zombie!");
+        //Debug.Log("Breakable hit by zombie!");
         health--;
         health = Mathf.Max(0, health);
 
@@ -126,7 +126,7 @@ public class Breakable : MonoBehaviour
         int plankIndex = maxHealth - health - 1;
         if (plankIndex >= 0 && plankIndex < planks.Length && planks[plankIndex] != null)
         {
-            Debug.Log("Playing break animation on plank index: " + plankIndex);
+            //Debug.Log("Playing break animation on plank index: " + plankIndex);
             Animator animator = planks[plankIndex].GetComponentInChildren<Animator>();
             if (animator != null)
             {                
@@ -154,7 +154,7 @@ public class Breakable : MonoBehaviour
 
     public void Repair()
     {
-        Debug.Log("Breakable repaired!");
+        //Debug.Log("Breakable repaired!");
         int previousHealth = health;
         health++;
         health = Mathf.Min(maxHealth, health);
@@ -164,7 +164,7 @@ public class Breakable : MonoBehaviour
         int plankIndex = maxHealth - previousHealth - 1;
         if (plankIndex >= 0 && plankIndex < planks.Length && planks[plankIndex] != null)
         {
-            Debug.Log("Playing repair animation on plank index: " + plankIndex);
+            //Debug.Log("Playing repair animation on plank index: " + plankIndex);
             Animator animator = planks[plankIndex].GetComponentInChildren<Animator>();
             if (animator != null)
             {

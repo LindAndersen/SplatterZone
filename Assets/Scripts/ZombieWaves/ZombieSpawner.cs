@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
 [System.Serializable]
 public class ZombiePrefabConfig
@@ -21,6 +20,10 @@ public class ZombieSpawner : MonoBehaviour
 
     [Header("Wave Settings")]
     public float timeBetweenWaves = 20f;
+
+    [Header("Resetting Scene")]
+    public GameObject explosiveBarrelsRespawner;
+    public GameObject player;
 
     private int currentWave = 0;
     private bool waveInProgress = false;
@@ -54,7 +57,7 @@ public class ZombieSpawner : MonoBehaviour
         while (true)
         {
             currentWave++;
-            Debug.Log($"[ZombieSpawner] Starting Wave {currentWave}");
+            //Debug.Log($"[ZombieSpawner] Starting Wave {currentWave}");
             
             if (UIManager.Instance != null)
                 UIManager.Instance.SetWaveCounter(currentWave);
@@ -66,7 +69,27 @@ public class ZombieSpawner : MonoBehaviour
             yield return new WaitUntil(() => AllZombiesDead());
 
             waveInProgress = false;
-            Debug.Log($"[ZombieSpawner] Wave {currentWave} complete! Next wave in {timeBetweenWaves} seconds...");
+            //Debug.Log($"[ZombieSpawner] Wave {currentWave} complete! Next wave in {timeBetweenWaves} seconds...");
+
+            // Reset Explosive Barrels
+            if (explosiveBarrelsRespawner != null)
+            {
+                var respawner = explosiveBarrelsRespawner.GetComponent<ExplosiveBarrelsRespawner>();
+                if (respawner != null)
+                {
+                    respawner.RespawnAll();
+                }
+            }
+
+            // Heal Player
+            if (player != null)
+            {
+                var playerHealth = player.GetComponent<PlayerHealth>();
+                if (playerHealth != null)
+                {
+                    playerHealth.GainHealth(playerHealth.maxHealth);
+                }
+            }
 
             // Wait before starting next wave
             yield return new WaitForSeconds(timeBetweenWaves);
@@ -97,7 +120,7 @@ public class ZombieSpawner : MonoBehaviour
                 zombiesSpawnedThisWave++;
             }
 
-            Debug.Log($"[ZombieSpawner] Spawned {count} of {config.prefab.name} for wave {currentWave}");
+            //Debug.Log($"[ZombieSpawner] Spawned {count} of {config.prefab.name} for wave {currentWave}");
         }
     }
 

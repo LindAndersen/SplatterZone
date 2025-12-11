@@ -165,6 +165,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 3373234333508614139}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fd10a47cc4a939d41aa7e2c84da25c16,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6523581707819432498}
     - targetCorrespondingSourceObject: {fileID: 1082271958561512970, guid: fd10a47cc4a939d41aa7e2c84da25c16,
         type: 3}
       insertIndex: -1
@@ -958,7 +962,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Paler
   maxHealth: 100
   currentHealth: 0
-  walkSpeed: 3.5
+  walkSpeed: 2
   attackRange: 2
   attackCooldown: 1.5
 --- !u!195 &6787657391151935791
@@ -971,7 +975,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -1061,6 +1065,33 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.40952682, y: 1.6832255, z: 0.26660442}
   m_Center: {x: 0.012992859, y: 0.90955573, z: -0.0251441}
+--- !u!54 &-6523581707819432498
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4999316950075868934}
+  serializedVersion: 5
+  m_Mass: 30
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &5090559659370964061 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1082271958561512970, guid: fd10a47cc4a939d41aa7e2c84da25c16,

@@ -143,4 +143,16 @@ public class WindowHighlight : MonoBehaviour
             keyPromptSprite.SetActive(false);
         }
     }
+
+    void OnDrawGizmos()
+    {
+        // Draw a sphere showing where the key prompt will be positioned
+        Vector3 promptPosition = transform.position + promptOffset;
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(promptPosition, 0.1f);
+        
+        // Draw a line from the trigger to the prompt position
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, promptPosition);
+    }
 }

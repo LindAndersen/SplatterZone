@@ -35,7 +35,7 @@ public class PlayerHealth : MonoBehaviour
         if (currentHealth < 0)
             currentHealth = 0;
 
-        Debug.Log($"[PlayerHealth] LooseLife({amount}) → currentHealth={currentHealth}");
+        //Debug.Log($"[PlayerHealth] LooseLife({amount}) → currentHealth={currentHealth}");
 
         if (currentHealth == 0)
             Die();
@@ -55,14 +55,14 @@ public class PlayerHealth : MonoBehaviour
         if (currentHealth > maxHealth)
             currentHealth = maxHealth;
 
-        Debug.Log($"[PlayerHealth] GainHealth({amount}) → currentHealth={currentHealth}");
+        //Debug.Log($"[PlayerHealth] GainHealth({amount}) → currentHealth={currentHealth}");
 
         UIManager.Instance.SetHealth(currentHealth, maxHealth);
     }
 
     private void Die()
     {
-        Debug.Log("[PlayerHealth] Player died");
+        //Debug.Log("[PlayerHealth] Player died");
         // TODO: Game Over / Respawn etc.
         UIManager.Instance.ShowGameOver();
     }

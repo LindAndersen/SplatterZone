@@ -188,7 +188,6 @@ namespace InfimaGames.LowPolyShooterPack
 
             //World space velocity calculation. This allows us to add it to the rigidbody's velocity properly.
             movement = transform.TransformDirection(movement);
-            Debug.Log($"isCrouching: {isCrouching}");
             transform.localScale = isCrouching ? new Vector3(1,0.5f,1) : Vector3.one;
 
             #endregion

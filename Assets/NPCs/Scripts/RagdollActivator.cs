@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 
 public class RagdollActivator : MonoBehaviour
@@ -34,7 +35,7 @@ public class RagdollActivator : MonoBehaviour
         if (animator == null)
             animator = GetComponent<Animator>();
 
-        ragdollBodies = GetComponentsInChildren<Rigidbody>();
+        ragdollBodies = GetComponentsInChildren<Rigidbody>().Where(rb => rb.transform != transform).ToArray();
         SetRagdoll(false);
     }
 
@@ -42,6 +43,8 @@ public class RagdollActivator : MonoBehaviour
     {
         foreach (var rb in ragdollBodies)
             rb.isKinematic = !active;
+
+        transform.GetComponent<Rigidbody>().isKinematic = active;
     }
 
     public void ActivateRagdoll()

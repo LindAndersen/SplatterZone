@@ -55,12 +55,32 @@ public class ExplosiveBarrelScript : MonoBehaviour {
 		//Explosion force
 		Vector3 explosionPos = transform.position;
 		Collider[] colliders = Physics.OverlapSphere(explosionPos, explosionRadius);
+		Collider[] zombieColliders = Physics.OverlapSphere(explosionPos, explosionRadius, LayerMask.GetMask("Zombies"), QueryTriggerInteraction.UseGlobal);
+		foreach (Collider hit in zombieColliders)
+        {
+			if (hit.transform.tag == "Zombie" && hit.TryGetComponent<ZombieController>(out var zombie)) 
+			{
+				//Apply damage to zombies within radius
+				zombie.ApplyDamage(1000);
+			}
+
+			if (hit.TryGetComponent<RagdollActivator>(out var ragdoll) && hit.TryGetComponent<ZombieStatsBase>(out var stats) && stats.IsDead())
+			{
+				//Activate ragdoll on zombies within radius
+				ragdoll.ActivateRagdoll();
+			}
+			
+			Rigidbody rb = hit.GetComponent<Rigidbody>();
+            if (rb != null)
+				rb.AddExplosionForce(explosionForce * 50, explosionPos, explosionRadius);
+
+        }
 		foreach (Collider hit in colliders) {
 			Rigidbody rb = hit.GetComponent<Rigidbody> ();
 			
 			//Add force to nearby rigidbodies
 			if (rb != null)
-				rb.AddExplosionForce (explosionForce * 50, explosionPos, explosionRadius);
+				rb.AddExplosionForce (explosionForce * 15, explosionPos, explosionRadius);
 
 			//If the barrel explosion hits other barrels with the tag "ExplosiveBarrel"
 			if (hit.transform.tag == "ExplosiveBarrel") 
@@ -95,6 +115,15 @@ public class ExplosiveBarrelScript : MonoBehaviour {
 		}
 
 		//Destroy the current barrel object
-		Destroy (gameObject);
+		gameObject.SetActive(false);
+		explode = false;
+		routineStarted = false;
+	}
+
+	void OnDrawGizmos()
+	{
+		// Draw the explosion radius
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere(transform.position, explosionRadius);
 	}
 }
