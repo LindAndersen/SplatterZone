@@ -162,3 +162,6 @@ MonoBehaviour:
   maxTime: 0.25
   explosionRadius: 3
   explosionForce: 50
+  zombieLayer:
+    serializedVersion: 2
+    m_Bits: 65536

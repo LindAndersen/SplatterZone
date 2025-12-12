@@ -44,7 +44,7 @@ public class RagdollActivator : MonoBehaviour
         foreach (var rb in ragdollBodies)
             rb.isKinematic = !active;
 
-        transform.GetComponent<Rigidbody>().isKinematic = active;
+        transform.GetComponent<Rigidbody>().isKinematic = false;
     }
 
     public void ActivateRagdoll()

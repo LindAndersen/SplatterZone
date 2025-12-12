@@ -12,11 +12,17 @@ public class ExplosiveBarrelsRespawner : MonoBehaviour
     /// </summary>
     public void RespawnAll()
     {
-        foreach (Transform child in transform)
+        // Get all children, including inactive ones
+        int childCount = transform.childCount;
+        
+        for (int i = 0; i < childCount; i++)
         {
-            child.gameObject.SetActive(true);
+            Transform child = transform.GetChild(i);
+            if (child != null)
+            {
+                child.gameObject.SetActive(true);
+            }
         }
-        //Debug.Log("[ExplosiveBarrelsRespawner] All barrels respawned (enabled).");
     }
 }
 

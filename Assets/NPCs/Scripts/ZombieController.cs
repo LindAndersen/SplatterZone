@@ -217,7 +217,9 @@ public class ZombieController : MonoBehaviour
         {
             Kill();
             // Adjust float to increase/decrease score gained by this particular zombie kill
-            UIManager.Instance.AddZombieKill();
+            UIManager instance = UIManager.Instance;
+            if (instance != null)
+                instance.AddZombieKill();
 
         }
     }
