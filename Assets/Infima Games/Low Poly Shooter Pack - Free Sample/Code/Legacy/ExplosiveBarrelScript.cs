@@ -10,6 +10,9 @@ public class ExplosiveBarrelScript : MonoBehaviour {
 	//has been hit and should explode 
 	public bool explode = false;
 
+	// Track the spawned destroyed barrel prefab
+	private Transform spawnedDestroyedBarrel;
+
 	[Header("Prefabs")]
 	//The explosion prefab
 	public Transform explosionPrefab;
@@ -27,6 +30,8 @@ public class ExplosiveBarrelScript : MonoBehaviour {
 	public float explosionRadius = 12.5f;
 	//How powerful the explosion is
 	public float explosionForce = 4000.0f;
+	//Layer where zombies exist
+	public LayerMask zombieLayer;
 	
 	private void Update () {
 		//Generate random time based on min and max time values
@@ -49,18 +54,39 @@ public class ExplosiveBarrelScript : MonoBehaviour {
 		yield return new WaitForSeconds(randomTime);
 
 		//Spawn the destroyed barrel prefab
-		Instantiate (destroyedBarrelPrefab, transform.position, 
-		             transform.rotation); 
+		if (destroyedBarrelPrefab != null)
+			spawnedDestroyedBarrel = Instantiate (destroyedBarrelPrefab, transform.position, transform.rotation);
 
 		//Explosion force
 		Vector3 explosionPos = transform.position;
 		Collider[] colliders = Physics.OverlapSphere(explosionPos, explosionRadius);
+		Collider[] zombieColliders = Physics.OverlapSphere(explosionPos, explosionRadius, zombieLayer, QueryTriggerInteraction.UseGlobal);
+		
+		foreach (Collider hit in zombieColliders)
+        {
+			if (hit.transform.tag == "Zombie" && hit.TryGetComponent<ZombieController>(out var zombie)) 
+			{
+				//Apply damage to zombies within radius
+				zombie.ApplyDamage(1000);
+			}
+
+			if (hit.TryGetComponent<RagdollActivator>(out var ragdoll) && hit.TryGetComponent<ZombieStatsBase>(out var stats) && stats.IsDead())
+			{
+				//Activate ragdoll on zombies within radius
+				ragdoll.ActivateRagdoll();
+			}
+			
+			Rigidbody rb = hit.GetComponent<Rigidbody>();
+            if (rb != null)
+				rb.AddExplosionForce(explosionForce * 50, explosionPos, explosionRadius);
+        }
+		
 		foreach (Collider hit in colliders) {
 			Rigidbody rb = hit.GetComponent<Rigidbody> ();
 			
 			//Add force to nearby rigidbodies
 			if (rb != null)
-				rb.AddExplosionForce (explosionForce * 50, explosionPos, explosionRadius);
+				rb.AddExplosionForce (explosionForce * 15, explosionPos, explosionRadius);
 
 			//If the barrel explosion hits other barrels with the tag "ExplosiveBarrel"
 			if (hit.transform.tag == "ExplosiveBarrel") 
@@ -87,14 +113,40 @@ public class ExplosiveBarrelScript : MonoBehaviour {
 
 		//Raycast downwards to check the ground tag
 		RaycastHit checkGround;
-		if (Physics.Raycast(transform.position, Vector3.down, out checkGround, 50))
+		if (Physics.Raycast(transform.position, Vector3.down, out checkGround, 100))
 		{
-			//Instantiate explosion prefab at hit position
-			Instantiate (explosionPrefab, checkGround.point, 
-				Quaternion.FromToRotation (Vector3.forward, checkGround.normal)); 
+			if (explosionPrefab != null)
+			{
+				//Instantiate explosion prefab at hit position
+				Instantiate (explosionPrefab, checkGround.point, 
+					Quaternion.FromToRotation (Vector3.forward, checkGround.normal));
+			}
 		}
 
-		//Destroy the current barrel object
-		Destroy (gameObject);
+		// Deactivate the current barrel object to allow later reuse
+		explode = false;
+		routineStarted = false;
+		gameObject.SetActive(false);
+	}
+
+	private void OnEnable()
+	{
+		// Ensure flags are reset when reactivated
+		routineStarted = false;
+		explode = false;
+
+		// Destroy the spawned destroyed barrel prefab if it exists
+		if (spawnedDestroyedBarrel != null)
+		{
+			Destroy(spawnedDestroyedBarrel.gameObject);
+			spawnedDestroyedBarrel = null;
+		}
+	}
+
+	void OnDrawGizmos()
+	{
+		// Draw the explosion radius
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere(transform.position, explosionRadius);
 	}
 }

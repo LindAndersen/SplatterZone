@@ -19,6 +19,7 @@ public class Breakable : MonoBehaviour
     
     [Header("Zombie Damage")]
     public float zombieAttackSpeed = 2f;
+    public LayerMask zombieDetectionLayers;
     private float damageCooldown = 0f;
     private Collider[] zombiesOnObstacle = new Collider[10];
 
@@ -31,8 +32,8 @@ public class Breakable : MonoBehaviour
     public GameObject[] planks = new GameObject[3];
 
     [Header("Particle Effects")]
-    public GameObject repairEffectPrefab;
-    public GameObject breakEffectPrefab;
+    public ParticleEffectPool repairEffectPool;
+    public ParticleEffectPool breakEffectPool;
 
     void Start()
     {
@@ -65,34 +66,46 @@ public class Breakable : MonoBehaviour
     void HandleZombieDamage()
     {
         if (obstacle == null || !obstacle.enabled)
+        {
+            //Debug.Log("[Breakable] Obstacle is null or not enabled, skipping zombie damage.");
             return;
+        }
 
         // Find all colliders touching the NavMeshObstacle
-        // Apply center offset in world space
         Vector3 boxCenter = obstacle.transform.position + obstacle.center;
-        float detectionRadius = obstacle.size.y + 1f; // Slightly larger to ensure detection
-        int count = Physics.OverlapSphereNonAlloc(boxCenter, detectionRadius, zombiesOnObstacle);
+        float detectionRadius = obstacle.size.y + 1f;
+        int count = Physics.OverlapSphereNonAlloc(boxCenter, detectionRadius, zombiesOnObstacle, zombieDetectionLayers, QueryTriggerInteraction.UseGlobal);
+        //Debug.Log($"[Breakable] Zombie detection sphere at {boxCenter}, radius {detectionRadius}, found {count} colliders.");
 
         for (int i = 0; i < count; i++)
         {
-            if (zombiesOnObstacle[i].CompareTag("Zombie"))
+            var col = zombiesOnObstacle[i];
+            //Debug.Log($"[Breakable] Collider {i}: {col.name}, tag: {col.tag}");
+            if (col.CompareTag("Zombie"))
             {
-                NavMeshAgent agent = zombiesOnObstacle[i].GetComponent<NavMeshAgent>();
+                NavMeshAgent agent = col.GetComponent<NavMeshAgent>();
                 if (agent == null)
+                {
+                    //Debug.Log($"[Breakable] Collider {i} has no NavMeshAgent, skipping.");
                     continue;
+                }
 
-                // Check if zombie is dead
-                ZombieStatsBase stats = zombiesOnObstacle[i].GetComponent<ZombieStatsBase>();
+                ZombieStatsBase stats = col.GetComponent<ZombieStatsBase>();
                 if (stats != null && stats.IsDead())
+                {
+                    //Debug.Log($"[Breakable] Collider {i} is dead, skipping.");
                     continue;
+                }
 
                 damageCooldown -= Time.deltaTime;
+                //Debug.Log($"[Breakable] damageCooldown: {damageCooldown}");
                 if (damageCooldown <= 0f)
                 {
+                    //Debug.Log($"[Breakable] Zombie {col.name} is damaging breakable!");
                     Hit();
                     damageCooldown = zombieAttackSpeed;
                 }
-                break; // Only one zombie damages per cycle
+                break;
             }
         }
     }
@@ -104,7 +117,7 @@ public class Breakable : MonoBehaviour
 
     public void Hit()
     {
-        Debug.Log("Breakable hit by zombie!");
+        //Debug.Log("Breakable hit by zombie!");
         health--;
         health = Mathf.Max(0, health);
 
@@ -113,7 +126,7 @@ public class Breakable : MonoBehaviour
         int plankIndex = maxHealth - health - 1;
         if (plankIndex >= 0 && plankIndex < planks.Length && planks[plankIndex] != null)
         {
-            Debug.Log("Playing break animation on plank index: " + plankIndex);
+            //Debug.Log("Playing break animation on plank index: " + plankIndex);
             Animator animator = planks[plankIndex].GetComponentInChildren<Animator>();
             if (animator != null)
             {                
@@ -125,7 +138,7 @@ public class Breakable : MonoBehaviour
             }
 
             // Play break effect at plank position
-            PlayEffectAt(breakEffectPrefab, planks[plankIndex].transform.position);
+            PlayEffectAt(breakEffectPool, planks[plankIndex].transform.position);
         }
 
         if (health <= 0 && obstacle != null)
@@ -141,7 +154,7 @@ public class Breakable : MonoBehaviour
 
     public void Repair()
     {
-        Debug.Log("Breakable repaired!");
+        //Debug.Log("Breakable repaired!");
         int previousHealth = health;
         health++;
         health = Mathf.Min(maxHealth, health);
@@ -151,7 +164,7 @@ public class Breakable : MonoBehaviour
         int plankIndex = maxHealth - previousHealth - 1;
         if (plankIndex >= 0 && plankIndex < planks.Length && planks[plankIndex] != null)
         {
-            Debug.Log("Playing repair animation on plank index: " + plankIndex);
+            //Debug.Log("Playing repair animation on plank index: " + plankIndex);
             Animator animator = planks[plankIndex].GetComponentInChildren<Animator>();
             if (animator != null)
             {
@@ -163,7 +176,7 @@ public class Breakable : MonoBehaviour
             }
 
             // Play repair effect at plank position
-            PlayEffectAt(repairEffectPrefab, planks[plankIndex].transform.position);
+            PlayEffectAt(repairEffectPool, planks[plankIndex].transform.position);
         }
 
         if (health > 0 && obstacle != null)
@@ -182,12 +195,12 @@ public class Breakable : MonoBehaviour
         AudioSource.PlayClipAtPoint(clip, transform.position);
     }
 
-    void PlayEffectAt(GameObject effectPrefab, Vector3 position)
+    void PlayEffectAt(ParticleEffectPool pool, Vector3 position)
     {
-        if (effectPrefab == null)
+        if (pool == null)
             return;
 
-        Instantiate(effectPrefab, position, Quaternion.identity);
+        pool.PlayEffect(position);
     }
 
     void OnDrawGizmos()

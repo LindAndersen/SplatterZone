@@ -36,9 +36,12 @@ public class Steps : MonoBehaviour
 
     void Update()
     {
+        if (sourceInstance == null) return;
+
         float speed = animator.GetFloat("Speed");
 
         float targetPitch = basePitch + speed * pitchMultiplier;
+        
         sourceInstance.pitch = Mathf.Clamp(targetPitch, minPitch, maxPitch);
 
         if (speed > 0.1f)

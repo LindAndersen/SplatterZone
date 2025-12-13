@@ -76,7 +76,7 @@ public class Bullet : MonoBehaviour
         }
 
         // Debug zum Testen – später rauslöschen
-        Debug.Log($"Bullet hit {hitCol.name} (tag='{zone}') → damage {damage}");
+        //Debug.Log($"Bullet hit {hitCol.name} (tag='{zone}') → damage {damage}");
 
         // Effekt spawnen (an Zombie-Root hängen, damit er "mitfliegt")
         SpawnFX(fxPrefab, cp, stats.transform);
