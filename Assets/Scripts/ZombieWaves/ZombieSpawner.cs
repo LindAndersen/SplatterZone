@@ -46,10 +46,9 @@ public class ZombieSpawner : MonoBehaviour
 
     void Update()
     {
-        if (UIManager.Instance != null && !waveInProgress)
+        if (UIManager.Instance != null)
         {
             UIManager.Instance.SetZombieProgress(zombiesSpawnedThisWave);
-            UIManager.Instance.zombiesKilledThisWave = 0;
         }
     }
 
@@ -81,6 +80,8 @@ public class ZombieSpawner : MonoBehaviour
                     respawner.RespawnAll();
                 }
             }
+
+            UIManager.Instance.zombiesKilledThisWave = 0;
 
             // Heal Player
             if (player != null)
@@ -137,7 +138,21 @@ public class ZombieSpawner : MonoBehaviour
 
     bool AllZombiesDead()
     {
-        return GameObject.FindGameObjectsWithTag(zombieTag).Length == 0;
+        var zombies = GameObject.FindGameObjectsWithTag(zombieTag);
+        if (zombies == null || zombies.Length == 0)
+            return true;
+
+        for (int i = 0; i < zombies.Length; i++)
+        {
+            var controller = zombies[i].GetComponent<ZombieController>();
+            if (controller == null)
+                return false; // Tagged as zombie but no controller; treat as not dead
+
+            if (controller.currentState != ZombieController.ZombieState.Dead)
+                return false;
+        }
+
+        return true;
     }
 
     public int GetCurrentWave()

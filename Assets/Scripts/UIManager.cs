@@ -41,7 +41,9 @@ public class UIManager : MonoBehaviour
 
     private string waveTallyMarks = "";
     [SerializeField] private AudioSource playerAudioSource;
+    [SerializeField] private AudioSource stingerAudioSource; // dedicated for wave change sound
     private float backgroundVolume = 0.1f;
+    private float stingerTargetVolume = 0.8f;
     private Coroutine waveAudioRoutine;
 
     void Awake()
@@ -143,6 +145,14 @@ public class UIManager : MonoBehaviour
 
         if (playerAudioSource.volume > 0f)
             backgroundVolume = playerAudioSource.volume;
+
+        // Set up stinger source if present
+        if (stingerAudioSource != null)
+        {
+            stingerAudioSource.playOnAwake = false;
+            stingerAudioSource.loop = false;
+            stingerAudioSource.volume = 0f; // keep silent until needed
+        }
     }
 
     void StartBackgroundMusic()
@@ -160,27 +170,79 @@ public class UIManager : MonoBehaviour
     {
         if (playerAudioSource == null)
             yield break;
-
-        if (playerAudioSource.clip == backgroundMusic && playerAudioSource.isPlaying)
-            yield return FadeToVolume(0f, musicFadeDuration);
-
-        // Ensure the stinger never loops; loop only for the background track
-        playerAudioSource.loop = false;
-        playerAudioSource.PlayOneShot(changeWaveSound);
-        yield return new WaitForSeconds(changeWaveSound.length);
-
-        if (backgroundMusic != null)
+        // If we have a dedicated stinger source, crossfade between the two sources
+        if (stingerAudioSource != null && changeWaveSound != null)
         {
-            if (playerAudioSource.clip != backgroundMusic)
+            // Ensure background music is playing
+            if (playerAudioSource.clip != backgroundMusic && backgroundMusic != null)
             {
                 playerAudioSource.clip = backgroundMusic;
+                playerAudioSource.loop = true;
+                playerAudioSource.volume = backgroundVolume;
                 playerAudioSource.Play();
             }
 
-            playerAudioSource.loop = true;
+            // Start crossfade: background down, stinger up
+            stingerAudioSource.clip = changeWaveSound;
+            stingerAudioSource.volume = 0f;
+            stingerAudioSource.loop = false;
+            stingerAudioSource.Play();
 
-            yield return FadeToVolume(backgroundVolume, musicFadeDuration);
+            // Run both fades in parallel over musicFadeDuration
+            yield return StartCoroutine(CrossfadeSources(playerAudioSource, stingerAudioSource, backgroundVolume, stingerTargetVolume, musicFadeDuration));
+
+            // Wait until stinger ends
+            yield return new WaitForSeconds(changeWaveSound.length - musicFadeDuration);
+
+            // Fade stinger out and background back in
+            yield return StartCoroutine(CrossfadeSources(stingerAudioSource, playerAudioSource, stingerTargetVolume, backgroundVolume, musicFadeDuration));
+            stingerAudioSource.Stop();
         }
+        else
+        {
+            // Fallback: single source behavior
+            if (playerAudioSource.clip == backgroundMusic && playerAudioSource.isPlaying)
+                yield return FadeToVolume(0f, musicFadeDuration);
+
+            playerAudioSource.loop = false;
+            float preOneShotVolume = playerAudioSource.volume; // likely 0 after fade
+            float oneShotVolume = Mathf.Max(0.2f, backgroundVolume);
+            playerAudioSource.volume = oneShotVolume;
+            playerAudioSource.PlayOneShot(changeWaveSound);
+            yield return new WaitForSeconds(changeWaveSound.length);
+            playerAudioSource.volume = preOneShotVolume;
+
+            if (backgroundMusic != null)
+            {
+                if (playerAudioSource.clip != backgroundMusic)
+                {
+                    playerAudioSource.clip = backgroundMusic;
+                    playerAudioSource.Play();
+                }
+                playerAudioSource.loop = true;
+                yield return FadeToVolume(backgroundVolume, musicFadeDuration);
+            }
+        }
+    }
+
+    IEnumerator CrossfadeSources(AudioSource downSource, AudioSource upSource, float downStartOrCurrent, float upTarget, float duration)
+    {
+        float startDown = downSource != null ? downSource.volume : 0f;
+        float startUp = upSource != null ? upSource.volume : 0f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = duration <= 0f ? 1f : Mathf.Clamp01(elapsed / duration);
+            if (downSource != null)
+                downSource.volume = Mathf.Lerp(startDown, 0f, t);
+            if (upSource != null)
+                upSource.volume = Mathf.Lerp(startUp, upTarget, t);
+            yield return null;
+        }
+        if (downSource != null) downSource.volume = 0f;
+        if (upSource != null) upSource.volume = upTarget;
     }
 
     IEnumerator FadeToVolume(float targetVolume, float duration)
